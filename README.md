@@ -30,7 +30,7 @@ The usage of this functionality is up to the developer, it is not, by default, p
 
 ## Configuring Block List
 
-The default install file contains many entries already.  
+The default install file contains some entries already.  
 No configuration is needed beyond adding your Site License(s) and their related IP entries.
 
 ## Using Block List
