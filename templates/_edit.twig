@@ -1,0 +1,161 @@
+{% requirePermission "blocklist:read" %}
+{% set blockListAdmin = currentUser.can('blocklist:write') %}
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% set centered = true %}
+
+{% if licenseId is not defined %}{% set licenseId = null %}{% endif %}
+{% if license is not defined %}
+    {% if licenseId %}
+        {% set license = craft.blockList.getLicense(licenseId) %}
+        {% if not license %}{% exit 404 %}{% endif %}
+    {% else %}
+        {% set licenseId = craft.blockList.newLicense() %}
+        {% set license = craft.blockList.getLicense(licenseId) %}
+    {% endif %}
+{% endif %}
+{% set licenseEntries = craft.blockList.entries(licenseId) %}
+
+{% set title = license ? license.name : "New License"|t %}
+
+{% set crumbs = [
+    { label: "Site Licenses"|t, url: url('block-list') }
+] %}
+
+{% set content %}
+
+    <form method="post" action="" accept-charset="UTF-8">
+        {{ csrfInput() }}
+        <input type="hidden" name="action" value="block-list/block-list/update-license" />
+        {% namespace "params" %}
+            <input type="hidden" name="licenseId" value="{{ licenseId }}" />
+
+            {{ forms.textField({
+                label: 'License Name'|t,
+                required: true,
+                name: 'license[name]',
+                value: license ? license.name : null,
+                errors: license ? license.errors('name') : null,
+            }) }}
+
+            {{ forms.textField({
+                label: 'Site License Code'|t,
+                required: false,
+                name: 'license[site_license_code]',
+                value: license ? license.site_license_code : null,
+                type: 'number',
+                min: 0,
+                max: 2147483647,
+                instructions: 'Numbers Only',
+                errors: license ? license.errors('site_license_code') : null,
+            }) }}
+
+            {{ forms.textField({
+                label: 'Site Entity'|t,
+                required: false,
+                name: 'license[site_entity]',
+                value: license ? license.site_entity : null,
+                type: 'number',
+                min: 0,
+                max: 2147483647,
+                instructions: 'Numbers Only',
+                errors: license ? license.errors('site_entity') : null,
+            }) }}
+
+            {{ forms.textField({
+                label: 'Corporate Id'|t,
+                required: false,
+                name: 'license[corporate_id]',
+                value: license ? license.corporate_id : null,
+                errors: license ? license.errors('corporate_id') : null,
+            }) }}
+
+        {% endnamespace %}
+        {% if blockListAdmin %}
+            <div class="buttons">
+                <input type="submit" class="btn submit" value="{{ 'Save License'|t }}">
+            </div>
+        {% endif %}
+    </form>
+    <hr>
+    {% if blockListAdmin %}
+        <h3>New IP Block List Entry</h3>
+        <form method="post" action="" accept-charset="UTF-8">
+            {{ csrfInput() }}
+            <input type="hidden" name="action" value="block-list/block-list/add-entry" />
+            {% namespace "params" %}
+                <input type="hidden" name="entry[site_license_id]" value="{{ licenseId }}" />
+
+                {{ forms.textField({
+                    label: 'IP Range Start'|t,
+                    required: true,
+                    name: 'entry[ip_range_start]',
+                    value: '127.0.0.2'
+                }) }}
+
+                {{ forms.textField({
+                    label: 'IP Range End'|t,
+                    required: true,
+                    name: 'entry[ip_range_end]',
+                    value: '127.0.0.2'
+                }) }}
+
+            {% endnamespace %}
+            <div class="buttons">
+                <input type="submit" class="btn submit" value="{{ 'Save Entry'|t }}">
+            </div>
+        </form>
+        <hr>
+    {% endif %}
+    <h3>Entries for this License</h3>
+    <div id="license-entries"></div>
+    <hr>
+    <h3>Test an IP</h3>
+    <form method="post" action="" accept-charset="UTF-8">
+        {{ csrfInput() }}
+        <input type="hidden" name="action" value="block-list/block-list/authenticate-test" />
+        {% namespace "params" %}
+            <input type="hidden" name="licenseId" value="{{ licenseId }}" />
+
+            {{ forms.textField({
+                label: 'IP'|t,
+                required: true,
+                name: 'ip',
+                value: '127.0.0.2'
+            }) }}
+        {% endnamespace %}
+        <div class="buttons">
+            <input type="submit" class="btn submit" value="{{ 'Test IP'|t }}">
+        </div>
+    </form>
+    <hr>
+{% endset %}
+
+{% set tableData = [] %}
+{% set deleteAction = blockListAdmin ? '"block-list/block-list/delete-entry"' : '""' %}
+{% for entry in licenseEntries %}
+    {% set tableData = tableData|merge([{
+        id: entry.id,
+        title: entry.id,
+        start: entry.ip_range_start,
+        end: entry.ip_range_end
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Entry Id') },
+    { name: 'start', title: Craft.t('app', 'IP Range Start') },
+    { name: 'end', title: Craft.t('app', 'IP Range End') },
+    ];
+
+    new Craft.VueAdminTable({
+    columns: columns,
+    fullPane: false,
+    container: '#license-entries',
+    deleteAction: {{ deleteAction|raw }},
+    emptyMessage: Craft.t('app', 'No entries exist yet.'),
+    tableData: {{ tableData|json_encode|raw }}
+    });
+{% endjs %}

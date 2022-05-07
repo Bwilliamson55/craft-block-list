@@ -1,0 +1,72 @@
+{#
+/**
+ * Block List plugin for Craft CMS 3.x
+ *
+ * Block List index.twig
+ *
+ * @author    Benjamin Williamson
+ * @copyright Benjamin Williamson
+ * @link      Github.com/Bwilliamson55
+ * @package   BlockList
+ * @since     1
+ */
+#}
+{% requirePermission "blocklist:read" %}
+{% set blockListAdmin = currentUser.can('blocklist:write') %}
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{# Asset bundle is an empty skeleton, but left in place for future development. #}
+{% do view.registerAssetBundle("bwilliamson\\blocklist\\assetbundles\\blocklistcpsection\\BlockListCPSectionAsset") %}
+
+{% set title = "Block List"|t %}
+{% set pluginCpUrl = url('block-list') %}
+{#  @var blockList \Bwilliamson\blocklist\variables\BlockListVariable #}
+{% set siteLicenses = craft.blockList.siteLicenses %}
+{# Leaving the following line as example #}
+{# {% set iconUrl = view.getAssetManager().getPublishedUrl('@bwilliamson/blocklist/assetbundles/blocklistcpsection/dist', true) ~ '/img/BlockList-icon.svg' %} #}
+{% block actionButton %}
+    {% if blockListAdmin %}
+        <a href="{{ url('block-list/new') }}" class="right">
+            <button class="btn submit">Create Site License</button>
+        </a>
+    {% endif %}
+{% endblock %}
+
+{% set content %}
+    <h2 class="left">Your Site Licenses</h2>
+    <div id="license-entries"></div>
+{% endset %}
+
+{% set tableData = [] %}
+{% set deleteAction = blockListAdmin ? '"block-list/block-list/delete-license"' : '""' %}
+{% for license in siteLicenses %}
+
+    {% set tableData = tableData|merge([{
+        id: license.id,
+        url: url('block-list/edit/'~license.id),
+        title: license.name,
+        created_at: license.dateCreated|date('M. d, Y'),
+        updated_at: license.dateUpdated|date('M. d, Y')
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+    { name: 'id', title: Craft.t('app', 'License Id') },
+    { name: '__slot:title', title: Craft.t('app', 'License Name') },
+    { name: 'created_at', title: Craft.t('app', 'Create Date') },
+    { name: 'updated_at', title: Craft.t('app', 'Last Updated') },
+    ];
+
+    new Craft.VueAdminTable({
+    columns: columns,
+    container: '#license-entries',
+    search: true,
+    searchPlaceholder: 'Search',
+    fullPane: false,
+    deleteAction: {{ deleteAction|raw }},
+    emptyMessage: Craft.t('app', "You don't have any Site Licenses yet."),
+    tableData: {{ tableData|json_encode|raw }}
+    });
+{% endjs %}
