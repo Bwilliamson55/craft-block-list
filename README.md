@@ -38,7 +38,7 @@ No configuration is needed beyond adding your Site License(s) and their related 
 After installation a new CP area 'Block List' will be available.  
 Inside this area you can Create Site Licenses, which then present you with detail fields for that license.  
 In addition, each license can hold any number of IP addresses associated with it.
-Currently the License details do not play a roll in authenticating IPs. ie any IP in any license is 'Blocked', or blocked depending on how you implement this.  
+Currently the License details do not play a roll in authenticating IPs. ie any IP in any license is blocked, or allowed depending on how you implement this.  
 This functionality may change with future releases.  
 
 Once there are IP entries associated with a License, from any template you can authenticate an IP via:  
