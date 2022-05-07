@@ -1,0 +1,44 @@
+{
+    "name": "bwilliamson/block-list",
+    "description": "A CP extension for basic ip block-list entries",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "block list"
+    ],
+    "support": {
+        "docs": "???",
+        "issues": "???"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Benjamin Williamson",
+            "homepage": "Github.com/Bwilliamson55"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "bwilliamson\\blocklist\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Block List",
+        "handle": "block-list",
+        "developer": "Benjamin Williamson",
+        "developerUrl": "Github.com/Bwilliamson55",
+        "documentationUrl": "???",
+        "changelogUrl": "???",
+        "components": {
+            "blockListService": "bwilliamson\\blocklist\\services\\BlockListService"
+        },
+        "class": "bwilliamson\\blocklist\\BlockList"
+    }
+}
