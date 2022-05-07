@@ -1,6 +1,8 @@
 # Block List plugin for Craft CMS 3.x
 
-A CP extension for basic ip block-list entries
+A CP extension for basic ip block-list entries.  
+If you're looking for examples for plugin migrations, or CP forms, this might help you out as well.  
+The ***developer*** is responsible for grafting this to their frontend utilizing the variable or service.
 
 ![Screenshot](resources/img/plugin-logo.png)
 
